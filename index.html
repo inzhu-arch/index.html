@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heart Animation</title>
+
+<style>
+    body {
+        margin: 0;
+        background: black;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+    }
+    canvas {
+        display: block;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+const amount = 1200;
+
+// Heart equation
+function heart(t) {
+    return {
+        x: 16 * Math.pow(Math.sin(t), 3),
+        y: -(13 * Math.cos(t) - 5 * Math.cos(2*t)
+            - 2 * Math.cos(3*t) - Math.cos(4*t))
+    };
+}
+
+// Create particles
+for (let i = 0; i < amount; i++) {
+    let t = Math.random() * Math.PI * 2;
+    let pos = heart(t);
+
+    particles.push({
+        baseX: pos.x,
+        baseY: pos.y,
+        x: canvas.width / 2,
+        y: canvas.height / 2,
+        size: Math.random() * 2 + 1,
+        speed: Math.random() * 0.02 + 0.01
+    });
+}
+
+let time = 0;
+
+function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    time += 0.02;
+
+    particles.forEach(p => {
+        let scale = 15 + Math.sin(time) * 2;
+
+        let targetX = canvas.width / 2 + p.baseX * scale;
+        let targetY = canvas.height / 2 + p.baseY * scale;
+
+        // Smooth movement
+        p.x += (targetX - p.x) * p.speed;
+        p.y += (targetY - p.y) * p.speed;
+
+        // Glow effect
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 200, 255, 0.9)";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "cyan";
+        ctx.fill();
+    });
+
+    // Text
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = "cyan";
+    ctx.font = "50px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("I Love You", canvas.width / 2, 120);
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+
+// Resize fix
+window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
